@@ -1,0 +1,19 @@
+.initialCell {
+    vertical-align: middle;
+    text-align: center;
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    background-color: #92df99;
+    margin: 0 5px 5px 0
+}
+
+.openCell {
+    vertical-align: middle;
+    text-align: center;
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    background-color: #a3967f;
+    margin: 0 5px 5px 0
+}
