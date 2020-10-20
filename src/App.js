@@ -8,16 +8,16 @@ import {Alert} from "antd";
 import Stopwatch from "./Stopwatch";
 import {selectFlaggedCells, selectNotMinedCells} from "./redux/selectors";
 
+function renderCell(cell) {
+    return <Cell key={uuidv4()} cell={cell}/>;
+}
+
+function renderRow(row) {
+    return <div key={uuidv4()}>{row.map(renderCell)}</div>;
+}
+
 function App(props) {
-    function renderCell(cell) {
-        return <Cell key={uuidv4()} cell={cell}/>;
-    }
-
-    function renderRow(row) {
-        return <div key={uuidv4()}>{row.map(renderCell)}</div>;
-    }
-
-    const changeGameLevel = (e) =>
+    const changeGameLevel = e =>
         props.changeGameLevel(e.target.value);
 
     const restart = () =>
@@ -62,7 +62,7 @@ function App(props) {
             </table>
             <p>Not Mined Cells: {props.notMinedCells}</p>
             <p> ☠️ ️ Bombs: {props.board.length - props.flaggedCells}</p>
-            <Stopwatch />
+            <Stopwatch/>
             <button onClick={restart}>Restart</button>
             <button onClick={showAllBombs}>Show All Bombs</button>
             {props.board.map(renderRow)}

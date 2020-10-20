@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {openCell, labelCell, endGame, startTimer} from "./redux/actions";
+import {openCell, labelCell, endGame} from "./redux/actions";
 import './cell.css';
 import 'antd/dist/antd.css';
 
@@ -14,7 +14,7 @@ function Cell(props) {
         props.openCell(props.cell.rowIndex, props.cell.columnIndex);
     };
 
-    const labelCell = (e) => {
+    const labelCell = e => {
         e.preventDefault();
         props.labelCell(props.cell.rowIndex, props.cell.columnIndex);
     };
@@ -56,8 +56,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
     openCell,
     labelCell,
-    endGame,
-    startTimer
+    endGame
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Cell);
