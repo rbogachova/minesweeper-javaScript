@@ -1,4 +1,5 @@
-const boardDimension = 6;
+let boardDimension;
+let initialGameLevel = "medium";
 
 const generateRandomNumber = (max) =>
     Math.floor(Math.random() * max);
@@ -9,7 +10,20 @@ function setupBomb(freeCells) {
     freeCells.splice(randomNumber, 1);
 }
 
-function createBoard() {
+function defineBoardDimension(gameLevel) {
+    switch (gameLevel) {
+        case "easy":
+            return boardDimension = 4;
+        case "medium":
+            return boardDimension = 6;
+        case "hard":
+            return boardDimension = 10;
+    }
+}
+
+function createBoard(gameLevel) {
+    boardDimension = defineBoardDimension(gameLevel);
+
     const board = [];
     const freeCells = [];
 
@@ -21,6 +35,7 @@ function createBoard() {
                 isOpen: false,
                 bombCount: null,
                 isFlagged: false,
+                isQuestioned: false,
                 rowIndex,
                 columnIndex
             };
@@ -35,12 +50,21 @@ function createBoard() {
     return board;
 }
 
-const createInitialState = () => ({
-    board: createBoard(),
-    notMinedCells: (boardDimension * boardDimension) - boardDimension,
-    flaggedCells: 0,
-    isGameEnded: false
-});
+const createInitialState = (gameLevel) => {
+    const boardDimension = defineBoardDimension(gameLevel);
+
+    return {
+        board: createBoard(gameLevel),
+        notMinedCells: (boardDimension * boardDimension) - boardDimension,
+        flaggedCells: 0,
+        isGameEnded: false,
+        gameLevel,
+        stopwatch: {
+            isTimerOn: false,
+            timerTime: 0
+        }
+    };
+};
 
 function checkCellIsValid(board, rowIndex, columnIndex) {
     const rowLength = board.length;
@@ -78,7 +102,10 @@ function showAllBombs(board) {
     }
 }
 
-function openCell(board, rowIndex, columnIndex, notMinedCells) {
+function openCell(board, rowIndex, columnIndex, notMinedCells, stopwatch) {
+    if(notMinedCells === board.length * board.length)
+        stopwatch.isTimerOn = true;
+
     if (!checkCellIsValid(board, rowIndex, columnIndex))
         return notMinedCells;
 
@@ -117,7 +144,28 @@ function copyBoard(board) {
     return newBoard;
 }
 
-export const rootReducer = (state = createInitialState(), action) => {
+function labelCell(cell, flaggedCells) {
+    if (cell.isFlagged) {
+        cell.isFlagged = false;
+        flaggedCells--;
+        cell.isQuestioned = true;
+    } else if (cell.isQuestioned) {
+        cell.isQuestioned = false;
+    } else if (!cell.isFlagged && !cell.isQuestioned && flaggedCells < boardDimension) {
+        cell.isFlagged = true;
+        flaggedCells++;
+    } else if (!cell.isFlagged && flaggedCells === boardDimension) {
+        cell.isQuestioned = true;
+    }
+
+    return flaggedCells;
+}
+
+function increaseTime (time) {
+    return time + 1;
+}
+
+export const rootReducer = (state = createInitialState(initialGameLevel), action) => {
     switch (action.type) {
         case 'OPEN_CELL': {
             const newBoard = copyBoard(state.board);
@@ -127,24 +175,18 @@ export const rootReducer = (state = createInitialState(), action) => {
             return {...state, board: newBoard, notMinedCells: notMinedCells};
         }
 
-        case 'FLAG_CELL': {
+        case 'LABEL_CELL': {
             const newBoard = copyBoard(state.board);
             let newFlaggedCells = state.flaggedCells;
 
-            const cell = newBoard[action.payload.rowIndex][action.payload.columnIndex];
-            if (cell.isFlagged) {
-                cell.isFlagged = false;
-                newFlaggedCells--;
-            } else {
-                cell.isFlagged = true;
-                newFlaggedCells++;
-            }
+            const currentCell = newBoard[action.payload.rowIndex][action.payload.columnIndex];
+            newFlaggedCells = labelCell(currentCell, newFlaggedCells);
 
             return {...state, board: newBoard, flaggedCells: newFlaggedCells};
         }
 
         case 'RESTART_GAME': {
-            return createInitialState();
+            return createInitialState(action.payload.gameLevel);
         }
 
         case 'SHOW_ALL_BOMBS': {
@@ -156,6 +198,25 @@ export const rootReducer = (state = createInitialState(), action) => {
 
         case 'END_GAME': {
             return {...state, isGameEnded: true};
+        }
+
+        case 'CHANGE_GAME_LEVEL': {
+            const newGameLevel = action.payload.gameLevel;
+            const newBoard = createBoard(newGameLevel);
+            const newNotMinedCells = (newBoard.length * newBoard.length - newBoard.length);
+
+
+            return {...state, board: newBoard, gameLevel: newGameLevel, notMinedCells: newNotMinedCells};
+        }
+
+        case 'START_TIMER': {
+            let newTimerTime = state.stopwatch.timerTime;
+            newTimerTime = setInterval(increaseTime(newTimerTime), 1000);
+
+            return {
+                ...state,
+                stopwatch: {...state.stopwatch, isTimerOn: true, timerTime: newTimerTime}
+            };
         }
     }
     return state;
