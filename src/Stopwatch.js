@@ -1,20 +1,31 @@
-import React from 'react';
-import {connect} from "react-redux";
+import React, {useEffect, useState} from 'react';
 
-function Stopwatch(props) {
+function Stopwatch() {
+    const [timerTime, setTimerTime] = useState(0);
+    const [isActive, setIsActive] = useState(false);
+
+    useEffect(() => {
+        let interval = null;
+        if (isActive) {
+            interval = setInterval(() => {
+                setTimerTime(time => time + 1);
+            }, 1000);
+        } else if (!isActive && timerTime !== 0) {
+            clearInterval(interval);
+        }
+        return () => clearInterval(interval);
+    }, [isActive, timerTime]);
+
+    function toggleTimer() {
+        setIsActive(!isActive);
+    }
+
     return (
         <div>
-            Stopwatch: {
-            props.stopwatch.isTimerOn &&
-            props.stopwatch.timerTime
-        }
+            <button onClick={toggleTimer}>Timer</button>
+            Stopwatch: {timerTime}
         </div>
     );
 }
 
-const mapStateToProps = state => ({
-    board: state.board,
-    stopwatch: state.stopwatch
-});
-
-export default connect(mapStateToProps, null)(Stopwatch);
+export default Stopwatch;
