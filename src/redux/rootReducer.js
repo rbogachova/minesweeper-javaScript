@@ -1,3 +1,5 @@
+import {selectFlaggedCells} from "./selectors";
+
 let boardDimension;
 let initialGameLevel = "medium";
 
@@ -52,7 +54,6 @@ function createBoard(gameLevel) {
 
 const createInitialState = (gameLevel) => ({
     board: createBoard(gameLevel),
-    flaggedCells: 0,
     isGameEnded: false,
     gameLevel,
     stopwatch: {
@@ -137,18 +138,14 @@ function copyBoard(board) {
 function labelCell(cell, flaggedCells) {
     if (cell.isFlagged) {
         cell.isFlagged = false;
-        flaggedCells--;
         cell.isQuestioned = true;
     } else if (cell.isQuestioned) {
         cell.isQuestioned = false;
     } else if (!cell.isFlagged && !cell.isQuestioned && flaggedCells < boardDimension) {
         cell.isFlagged = true;
-        flaggedCells++;
     } else if (!cell.isFlagged && flaggedCells === boardDimension) {
         cell.isQuestioned = true;
     }
-
-    return flaggedCells;
 }
 
 function increaseTime(time) {
@@ -166,12 +163,12 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
 
         case 'LABEL_CELL': {
             const newBoard = copyBoard(state.board);
-            let newFlaggedCells = state.flaggedCells;
-
             const currentCell = newBoard[action.payload.rowIndex][action.payload.columnIndex];
-            newFlaggedCells = labelCell(currentCell, newFlaggedCells);
+            const flaggedCells = selectFlaggedCells(state);
 
-            return {...state, board: newBoard, flaggedCells: newFlaggedCells};
+            labelCell(currentCell, flaggedCells);
+
+            return {...state, board: newBoard};
         }
 
         case 'RESTART_GAME': {
@@ -208,21 +205,3 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
     }
     return state;
 };
-
-export function selectNotMinedCells(state) {
-    const boardDimension = state.board.length;
-    const allCells = boardDimension * boardDimension;
-    const openCells = countOpenCells(state.board);
-
-    return allCells - boardDimension - openCells;
-}
-
-function countOpenCells(board) {
-    let openCells = 0;
-    for (let rowIndex = 0; rowIndex < board.length; rowIndex++)
-        for (let columnIndex = 0; columnIndex < board[rowIndex].length; columnIndex++) {
-            if (board[rowIndex][columnIndex].isOpen)
-                openCells++;
-        }
-    return openCells;
-}

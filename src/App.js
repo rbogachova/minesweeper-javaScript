@@ -6,7 +6,7 @@ import {restartGame, showAllBombs, changeGameLevel} from "./redux/actions";
 import './app.css';
 import {Alert} from "antd";
 import Stopwatch from "./Stopwatch";
-import {selectNotMinedCells} from "./redux/rootReducer";
+import {selectFlaggedCells, selectNotMinedCells} from "./redux/selectors";
 
 function App(props) {
     function renderCell(cell) {
@@ -76,7 +76,7 @@ const mapStateToProps = state => ({
     board: state.board,
     isGameEnded: state.isGameEnded,
     notMinedCells: selectNotMinedCells(state),
-    flaggedCells: state.flaggedCells,
+    flaggedCells: selectFlaggedCells(state),
     gameLevel: state.gameLevel
 });
 
