@@ -50,21 +50,16 @@ function createBoard(gameLevel) {
     return board;
 }
 
-const createInitialState = (gameLevel) => {
-    const boardDimension = defineBoardDimension(gameLevel);
-
-    return {
-        board: createBoard(gameLevel),
-        notMinedCells: (boardDimension * boardDimension) - boardDimension,
-        flaggedCells: 0,
-        isGameEnded: false,
-        gameLevel,
-        stopwatch: {
-            isTimerOn: false,
-            timerTime: 0
-        }
-    };
-};
+const createInitialState = (gameLevel) => ({
+    board: createBoard(gameLevel),
+    flaggedCells: 0,
+    isGameEnded: false,
+    gameLevel,
+    stopwatch: {
+        isActive: false,
+        timerTime: 0
+    }
+});
 
 function checkCellIsValid(board, rowIndex, columnIndex) {
     const rowLength = board.length;
@@ -102,35 +97,30 @@ function showAllBombs(board) {
     }
 }
 
-function openCell(board, rowIndex, columnIndex, notMinedCells, stopwatch) {
-    if(notMinedCells === board.length * board.length)
-        stopwatch.isTimerOn = true;
-
+function openCell(board, rowIndex, columnIndex) {
     if (!checkCellIsValid(board, rowIndex, columnIndex))
-        return notMinedCells;
+        return;
 
     const cell = board[rowIndex][columnIndex];
     if (cell.isOpen)
-        return notMinedCells;
+        return;
 
     cell.isOpen = true;
     if (cell.isBomb) {
         showAllBombs(board);
-        return notMinedCells;
+        return;
     }
-    notMinedCells--;
 
     cell.bombCount = calculateBombCount(board, rowIndex, columnIndex);
     if (cell.bombCount !== 0)
-        return notMinedCells;
+        return;
     for (let rowIndexAdjustment = -1; rowIndexAdjustment <= 1; rowIndexAdjustment++) {
         for (let columnIndexAdjustment = -1; columnIndexAdjustment <= 1; columnIndexAdjustment++) {
             if (rowIndexAdjustment === 0 && columnIndexAdjustment === 0)
                 continue;
-            notMinedCells = openCell(board, rowIndex + rowIndexAdjustment, columnIndex + columnIndexAdjustment, notMinedCells);
+            openCell(board, rowIndex + rowIndexAdjustment, columnIndex + columnIndexAdjustment);
         }
     }
-    return notMinedCells;
 }
 
 function copyBoard(board) {
@@ -161,7 +151,7 @@ function labelCell(cell, flaggedCells) {
     return flaggedCells;
 }
 
-function increaseTime (time) {
+function increaseTime(time) {
     return time + 1;
 }
 
@@ -169,10 +159,9 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
     switch (action.type) {
         case 'OPEN_CELL': {
             const newBoard = copyBoard(state.board);
-            const newNotMinedCells = state.notMinedCells;
-            const notMinedCells = openCell(newBoard, action.payload.rowIndex, action.payload.columnIndex, newNotMinedCells);
+            openCell(newBoard, action.payload.rowIndex, action.payload.columnIndex);
 
-            return {...state, board: newBoard, notMinedCells: notMinedCells};
+            return {...state, board: newBoard};
         }
 
         case 'LABEL_CELL': {
@@ -203,10 +192,8 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
         case 'CHANGE_GAME_LEVEL': {
             const newGameLevel = action.payload.gameLevel;
             const newBoard = createBoard(newGameLevel);
-            const newNotMinedCells = (newBoard.length * newBoard.length - newBoard.length);
 
-
-            return {...state, board: newBoard, gameLevel: newGameLevel, notMinedCells: newNotMinedCells};
+            return {...state, board: newBoard, gameLevel: newGameLevel};
         }
 
         case 'START_TIMER': {
@@ -215,9 +202,27 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
 
             return {
                 ...state,
-                stopwatch: {...state.stopwatch, isTimerOn: true, timerTime: newTimerTime}
+                stopwatch: {...state.stopwatch, timerTime: newTimerTime}
             };
         }
     }
     return state;
 };
+
+export function selectNotMinedCells(state) {
+    const boardDimension = state.board.length;
+    const allCells = boardDimension * boardDimension;
+    const openCells = countOpenCells(state.board);
+
+    return allCells - boardDimension - openCells;
+}
+
+function countOpenCells(board) {
+    let openCells = 0;
+    for (let rowIndex = 0; rowIndex < board.length; rowIndex++)
+        for (let columnIndex = 0; columnIndex < board[rowIndex].length; columnIndex++) {
+            if (board[rowIndex][columnIndex].isOpen)
+                openCells++;
+        }
+    return openCells;
+}
