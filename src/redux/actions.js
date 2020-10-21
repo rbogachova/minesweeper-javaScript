@@ -25,17 +25,21 @@ export const restartGame = (gameLevel) => ({
     }
 });
 
-export const endGame = () => ({
-    type: 'END_GAME',
-});
-
 export const changeGameLevel = (gameLevel) => ({
     type: 'CHANGE_GAME_LEVEL',
     payload: {
         gameLevel
     }
 });
+
 export const startTimer = () => ({
     type: 'START_TIMER',
 });
 
+export const stopTimer = () => ({
+    type: 'STOP_TIMER',
+});
+
+export const resetTimer = () => ({
+    type: 'RESET_TIMER',
+});

@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {openCell, labelCell, endGame} from "./redux/actions";
+import {openCell, labelCell} from "./redux/actions";
 import './cell.css';
 import 'antd/dist/antd.css';
 
@@ -8,8 +8,6 @@ function Cell(props) {
     const openCell = () => {
         if (props.cell.isOpen || props.isGameEnded)
             return;
-        if (props.cell.isBomb)
-            props.endGame();
 
         props.openCell(props.cell.rowIndex, props.cell.columnIndex);
     };
@@ -55,8 +53,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     openCell,
-    labelCell,
-    endGame
+    labelCell
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Cell);

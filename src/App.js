@@ -7,6 +7,7 @@ import './app.css';
 import {Alert} from "antd";
 import Stopwatch from "./Stopwatch";
 import {selectFlaggedCells, selectNotMinedCells} from "./redux/selectors";
+import StopwatchRedux from "./StopwatchRedux";
 
 function renderCell(cell) {
     return <Cell key={uuidv4()} cell={cell}/>;
@@ -63,10 +64,11 @@ function App(props) {
             <p>Not Mined Cells: {props.notMinedCells}</p>
             <p> ☠️ ️ Bombs: {props.board.length - props.flaggedCells}</p>
             <Stopwatch/>
+            <StopwatchRedux/>
             <button onClick={restart}>Restart</button>
             <button onClick={showAllBombs}>Show All Bombs</button>
             {props.board.map(renderRow)}
-            {props.isGameEnded && showGameOverMessage()}
+            {props.isGameEnded && props.notMinedCells > 0 && showGameOverMessage()}
             {props.notMinedCells === 0 && showCongratulationsMessage()}
         </div>
     );
@@ -75,7 +77,7 @@ function App(props) {
 const mapStateToProps = state => ({
     board: state.board,
     isGameEnded: state.isGameEnded,
-    notMinedCells: selectNotMinedCells(state),
+    notMinedCells: selectNotMinedCells(state.board),
     flaggedCells: selectFlaggedCells(state),
     gameLevel: state.gameLevel
 });

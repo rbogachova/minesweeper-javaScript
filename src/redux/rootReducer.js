@@ -1,4 +1,4 @@
-import {selectFlaggedCells} from "./selectors";
+import {selectFlaggedCells, selectNotMinedCells} from "./selectors";
 
 let boardDimension;
 let initialGameLevel = "medium";
@@ -98,28 +98,32 @@ function showAllBombs(board) {
     }
 }
 
-function openCell(board, rowIndex, columnIndex) {
-    if (!checkCellIsValid(board, rowIndex, columnIndex))
+function openCell(state, rowIndex, columnIndex) {
+    if (!checkCellIsValid(state.board, rowIndex, columnIndex))
         return;
 
-    const cell = board[rowIndex][columnIndex];
+    const cell = state.board[rowIndex][columnIndex];
     if (cell.isOpen)
         return;
 
     cell.isOpen = true;
     if (cell.isBomb) {
-        showAllBombs(board);
+        showAllBombs(state.board);
+        state.isGameEnded = true;
         return;
     }
 
-    cell.bombCount = calculateBombCount(board, rowIndex, columnIndex);
+    if (selectNotMinedCells(state) === 0)
+        state.isGameEnded = true;
+
+    cell.bombCount = calculateBombCount(state.board, rowIndex, columnIndex);
     if (cell.bombCount !== 0)
         return;
     for (let rowIndexAdjustment = -1; rowIndexAdjustment <= 1; rowIndexAdjustment++) {
         for (let columnIndexAdjustment = -1; columnIndexAdjustment <= 1; columnIndexAdjustment++) {
             if (rowIndexAdjustment === 0 && columnIndexAdjustment === 0)
                 continue;
-            openCell(board, rowIndex + rowIndexAdjustment, columnIndex + columnIndexAdjustment);
+            openCell(state, rowIndex + rowIndexAdjustment, columnIndex + columnIndexAdjustment);
         }
     }
 }
@@ -148,7 +152,7 @@ function labelCell(cell, flaggedCells) {
     }
 }
 
-function increaseTime(time) {
+function updateTimerTime(time) {
     return time + 1;
 }
 
@@ -156,16 +160,16 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
     switch (action.type) {
         case 'OPEN_CELL': {
             const newBoard = copyBoard(state.board);
-            openCell(newBoard, action.payload.rowIndex, action.payload.columnIndex);
+            const newState = {...state, board: newBoard};
+            openCell(newState, action.payload.rowIndex, action.payload.columnIndex);
 
-            return {...state, board: newBoard};
+            return newState;
         }
 
         case 'LABEL_CELL': {
             const newBoard = copyBoard(state.board);
             const currentCell = newBoard[action.payload.rowIndex][action.payload.columnIndex];
             const flaggedCells = selectFlaggedCells(state);
-
             labelCell(currentCell, flaggedCells);
 
             return {...state, board: newBoard};
@@ -182,10 +186,6 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
             return {...state, board: newBoard};
         }
 
-        case 'END_GAME': {
-            return {...state, isGameEnded: true};
-        }
-
         case 'CHANGE_GAME_LEVEL': {
             const newGameLevel = action.payload.gameLevel;
             const newBoard = createBoard(newGameLevel);
@@ -194,13 +194,24 @@ export const rootReducer = (state = createInitialState(initialGameLevel), action
         }
 
         case 'START_TIMER': {
-            let newTimerTime = state.stopwatch.timerTime;
-            newTimerTime = setInterval(increaseTime(newTimerTime), 1000);
+            const newStopwatch = {...state.stopwatch};
+            console.log("Clicked");
 
-            return {
-                ...state,
-                stopwatch: {...state.stopwatch, timerTime: newTimerTime}
-            };
+            setInterval(() => {
+                updateTimerTime(newStopwatch.timerTime);
+            }, 1000);
+
+            console.log(newStopwatch);
+
+            return {...state, stopwatch: newStopwatch};
+        }
+
+        case 'STOP_TIMER': {
+            return {...state, isGameEnded: true};
+        }
+
+        case 'RESET_TIMER': {
+            return {...state, isGameEnded: true};
         }
     }
     return state;

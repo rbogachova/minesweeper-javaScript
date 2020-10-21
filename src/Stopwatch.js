@@ -13,16 +13,22 @@ function Stopwatch() {
         } else if (!isActive && timerTime !== 0) {
             clearInterval(interval);
         }
+
         return () => clearInterval(interval);
     }, [isActive, timerTime]);
 
-    function toggleTimer() {
-        setIsActive(!isActive);
+    function startTimer() {
+        setIsActive(true);
+    }
+
+    function stopTimer() {
+        setIsActive(false);
     }
 
     return (
         <div>
-            <button onClick={toggleTimer}>Timer</button>
+            <button onClick={startTimer}>Start Timer</button>
+            <button onClick={stopTimer}>Stop Timer</button>
             Stopwatch: {timerTime}
         </div>
     );
