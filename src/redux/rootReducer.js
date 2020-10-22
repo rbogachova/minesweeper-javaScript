@@ -148,16 +148,8 @@ function openCell(state, rowIndex, columnIndex) {
     }
 }
 
-function copyBoard(board) {
-    let newBoard = [];
-    for (let rowIndex = 0; rowIndex < board.length; rowIndex++) {
-        newBoard[rowIndex] = [];
-        for (let columnIndex = 0; columnIndex < board[rowIndex].length; columnIndex++) {
-            newBoard[rowIndex][columnIndex] = {...board[rowIndex][columnIndex]};
-        }
-    }
-    return newBoard;
-}
+const copyBoard = board =>
+    board.map(row => row.map(column => column));
 
 export const calculateFlaggedCells = board =>
     countCells(board, cell => cell.isFlagged);
