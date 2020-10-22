@@ -3,7 +3,7 @@ export const easyLevel = 'easy';
 export const mediumLevel = 'medium';
 export const hardLevel = 'hard';
 
-const generateRandomNumber = (max) =>
+const generateRandomNumber = max =>
     Math.floor(Math.random() * max);
 
 function setupBomb(freeCells) {
@@ -169,9 +169,7 @@ function labelCell(cell, board) {
     }
 }
 
-function updateTimerTime(time) {
-    return time + 1;
-}
+const updateTimerTime = time => time + 1;
 
 export const rootReducer = (state = createState(easyLevel), action) => {
     switch (action.type) {
