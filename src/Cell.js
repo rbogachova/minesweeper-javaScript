@@ -1,6 +1,6 @@
 import React from 'react';
-import {connect} from "react-redux";
-import {openCell, labelCell} from "./redux/actions";
+import {connect} from 'react-redux';
+import {openCell, labelCell} from './redux/actions';
 import './cell.css';
 import 'antd/dist/antd.css';
 

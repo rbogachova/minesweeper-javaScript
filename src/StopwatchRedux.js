@@ -1,6 +1,6 @@
 import React from 'react';
-import {connect} from "react-redux";
-import {startTimer, stopTimer} from "./redux/actions";
+import {connect} from 'react-redux';
+import {startTimer, stopTimer} from './redux/actions';
 
 function StopwatchRedux(props) {
     return (

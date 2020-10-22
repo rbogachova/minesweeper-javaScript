@@ -1,13 +1,14 @@
 import React from 'react';
 import {connect} from "react-redux";
-import Cell from "./Cell";
+import Cell from './Cell';
 import {v4 as uuidv4} from 'uuid';
-import {restartGame, showAllBombs, changeGameLevel} from "./redux/actions";
+import {restartGame, showAllBombs, changeGameLevel} from './redux/actions';
 import './app.css';
-import {Alert} from "antd";
-import Stopwatch from "./Stopwatch";
-import {selectFlaggedCells, selectNotMinedCells} from "./redux/selectors";
-import StopwatchRedux from "./StopwatchRedux";
+import {Alert} from 'antd';
+import Stopwatch from './Stopwatch';
+import {selectFlaggedCells, selectNotMinedCells} from './redux/selectors';
+import StopwatchRedux from './StopwatchRedux';
+import {easyLevel, hardLevel, mediumLevel} from './redux/rootReducer';
 
 function renderCell(cell) {
     return <Cell key={uuidv4()} cell={cell}/>;
@@ -53,9 +54,9 @@ function App(props) {
                     </td>
                     <td>
                         <select name="levels" id="levels" onChange={changeGameLevel}>
-                            <option value="easy">Easy</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="hard">Hard</option>
+                            <option value={easyLevel} selected>Easy</option>
+                            <option value={mediumLevel}>Medium</option>
+                            <option value={hardLevel}>Hard</option>
                         </select>
                     </td>
                 </tr>
@@ -77,7 +78,7 @@ function App(props) {
 const mapStateToProps = state => ({
     board: state.board,
     isGameEnded: state.isGameEnded,
-    notMinedCells: selectNotMinedCells(state.board),
+    notMinedCells: selectNotMinedCells(state),
     flaggedCells: selectFlaggedCells(state),
     gameLevel: state.gameLevel
 });
