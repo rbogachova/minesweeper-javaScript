@@ -99,13 +99,9 @@ function showAllBombs(board) {
 }
 
 export function countCells(board, cellChecker) {
-    let cellCount = 0;
-    for (let rowIndex = 0; rowIndex < board.length; rowIndex++)
-        for (let columnIndex = 0; columnIndex < board[rowIndex].length; columnIndex++) {
-            if (cellChecker(board[rowIndex][columnIndex]))
-                cellCount++;
-        }
-    return cellCount;
+    return board
+        .map(row => row.reduce((acc, cell) => cellChecker(cell) ? acc + 1 : acc, 0))
+        .reduce((acc, rowCellCount) => acc + rowCellCount);
 }
 
 export function calculateNotMinedCells(board) {
@@ -211,8 +207,6 @@ export const rootReducer = (state = createState(easyLevel), action) => {
             setInterval(() => {
                 updateTimerTime(newStopwatch.timerTime);
             }, 1000);
-
-            console.log(newStopwatch);
 
             return {...state, stopwatch: newStopwatch};
         }
