@@ -10,13 +10,11 @@ import {selectFlaggedCells, selectNotMinedCells} from './redux/selectors';
 import StopwatchRedux from './StopwatchRedux';
 import {easyLevel, hardLevel, mediumLevel} from './redux/rootReducer';
 
-function renderCell(cell) {
-    return <Cell key={uuidv4()} cell={cell}/>;
-}
+const renderCell = cell =>
+    <Cell key={uuidv4()} cell={cell}/>;
 
-function renderRow(row) {
-    return <div key={uuidv4()}>{row.map(renderCell)}</div>;
-}
+const renderRow = row =>
+    <div key={uuidv4()}>{row.map(renderCell)}</div>;
 
 function App(props) {
     const changeGameLevel = e =>
@@ -29,20 +27,16 @@ function App(props) {
         props.showAllBombs();
 
     const showGameOverMessage = () =>
-        <Alert
-            message="GAME OVER"
-            type="error"
-            closable
-            onClick={restart}
-        />;
+        <Alert message="GAME OVER"
+               type="error"
+               closable
+               onClick={restart}/>;
 
     const showCongratulationsMessage = () =>
-        <Alert
-            message="CONGRATULATIONS! YOU WON!"
-            type="success"
-            closable
-            onClick={restart}
-        />;
+        <Alert message="CONGRATULATIONS! YOU WON!"
+               type="success"
+               closable
+               onClick={restart}/>;
 
     return (
         <div className="app">
