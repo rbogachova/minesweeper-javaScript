@@ -199,25 +199,6 @@ export const rootReducer = (state = createState(easyLevel), action) => {
         case 'CHANGE_GAME_LEVEL': {
             return createState(action.payload.gameLevel);
         }
-
-        case 'START_TIMER': {
-            const newStopwatch = {...state.stopwatch};
-            console.log("Clicked");
-
-            setInterval(() => {
-                updateTimerTime(newStopwatch.timerTime);
-            }, 1000);
-
-            return {...state, stopwatch: newStopwatch};
-        }
-
-        case 'STOP_TIMER': {
-            return {...state, isGameEnded: true};
-        }
-
-        case 'RESET_TIMER': {
-            return {...state, isGameEnded: true};
-        }
     }
     return state;
 };

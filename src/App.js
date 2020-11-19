@@ -5,9 +5,7 @@ import {v4 as uuidv4} from 'uuid';
 import {restartGame, showAllBombs, changeGameLevel} from './redux/actions';
 import './app.css';
 import {Alert} from 'antd';
-import Stopwatch from './Stopwatch';
 import {selectFlaggedCells, selectNotMinedCells} from './redux/selectors';
-import StopwatchRedux from './StopwatchRedux';
 import {easyLevel, hardLevel, mediumLevel} from './redux/rootReducer';
 
 const renderCell = cell =>
@@ -58,8 +56,6 @@ function App(props) {
             </table>
             <p>Not Mined Cells: {props.notMinedCells}</p>
             <p> ☠️ ️ Bombs: {props.board.length - props.flaggedCells}</p>
-            <Stopwatch/>
-            <StopwatchRedux/>
             <button onClick={restart}>Restart</button>
             <button onClick={showAllBombs}>Show All Bombs</button>
             {props.board.map(renderRow)}
